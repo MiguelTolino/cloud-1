@@ -7,10 +7,10 @@ provider "google" {
   zone    = "us-central1-a"
 }
 
-resource "google_compute_instance" "cloud-2" {
+resource "google_compute_instance" "cloud-1" {
   boot_disk {
     auto_delete = true
-    device_name = "cloud-2"
+    device_name = "cloud-1"
 
     initialize_params {
       image = "projects/ubuntu-os-cloud/global/images/ubuntu-2004-focal-v20240830"
@@ -30,7 +30,7 @@ resource "google_compute_instance" "cloud-2" {
   }
 
   machine_type = "e2-micro"
-  name         = "cloud-2"
+  name         = "cloud-1"
 
   network_interface {
     access_config {
