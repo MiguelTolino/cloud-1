@@ -6,7 +6,7 @@ sudo apt install -y make docker.io docker-compose
 
 # Agregar el usuario actual al grupo docker
 echo "Añadiendo el usuario $(whoami) al grupo 'docker'..."
-usermod -aG docker $USER
+sudo usermod -aG docker $USER
 
 # Reiniciar el servicio Docker
 echo "Reiniciando el servicio Docker..."
@@ -21,6 +21,7 @@ git clone https://github.com/MiguelTolino/inception.git
 cd inception
 
 # Add .env inside the inception folder
-# TODO: Options: scp | google secret manager
+cp ~/.env srcs/.env
 
+# Build the Docker images
 make all
