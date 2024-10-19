@@ -20,6 +20,7 @@ gcloud compute instances add-metadata $VM_NAME \
 
 # Wait for the VM to be ready
 echo "Waiting for VM to be ready..."
+sleep 5
 while ! gcloud compute ssh $VM_NAME --zone=$VM_ZONE --command="echo VM is ready"; do
   echo "VM is not ready yet. Retrying in 10 seconds..."
   sleep 10
