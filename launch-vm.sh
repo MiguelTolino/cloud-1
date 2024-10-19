@@ -18,4 +18,11 @@ gcloud compute instances add-metadata $VM_NAME \
   --zone=us-central1-c \
   --metadata-from-file startup-script=./startup.sh
 
+# Wait for the VM to be ready
+echo "Waiting for VM to be ready..."
+while ! gcloud compute ssh $VM_NAME --zone=$VM_ZONE --command="echo VM is ready"; do
+  echo "VM is not ready yet. Retrying in 10 seconds..."
+  sleep 10
+done
+
 gcloud compute scp ./.env $VM_NAME:~/.env --zone $VM_ZONE

@@ -4,13 +4,18 @@
 provider "google" {
   project = "cloud-1-439021"
   region  = "us-central1"
-  zone    = "us-central1-a"
+  zone    = "us-central1-c"
+}
+
+variable "node_count" {
+  type    = number
+  default = 1
 }
 
 resource "google_compute_instance" "cloud-1" {
   boot_disk {
     auto_delete = true
-    device_name = "cloud-1"
+    device_name = "cloud-${count.index + 1}"
 
     initialize_params {
       image = "projects/ubuntu-os-cloud/global/images/ubuntu-2004-focal-v20240830"
@@ -29,8 +34,10 @@ resource "google_compute_instance" "cloud-1" {
     goog-ec-src = "vm_add-tf"
   }
 
+  count = var.node_count
+
   machine_type = "e2-micro"
-  name         = "cloud-1"
+  name         = "cloud-${count.index + 1}"
 
   network_interface {
     access_config {
@@ -60,7 +67,19 @@ resource "google_compute_instance" "cloud-1" {
     enable_vtpm                 = true
   }
 
-  tags = ["http-server", "https-server"]
+  tags = ["http-server", "https-server", "allow-8080"]
   zone = "us-central1-c"
 }
 
+resource "google_compute_firewall" "allow-8080" {
+  name    = "allow-8080"
+  network = "default"
+
+  allow {
+    protocol = "tcp"
+    ports    = ["8080"]
+  }
+
+  source_ranges = ["0.0.0.0/0"]
+  target_tags   = ["allow-8080"]
+}

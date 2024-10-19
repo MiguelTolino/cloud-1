@@ -14,14 +14,14 @@ sudo systemctl restart docker
 
 # Aplicar el grupo 'docker' sin cerrar sesión
 echo "Aplicando el nuevo grupo 'docker' para el usuario actual..."
-sudo newgrp docker
+newgrp docker
 
 # Clonar el repositorio de Inception
 git clone https://github.com/MiguelTolino/inception.git
-cd inception
 
 # Add .env inside the inception folder
-cp ~/.env srcs/.env
+sudo cp ../migueltolino/.env inception/srcs/
 
 # Build the Docker images
+cd inception
 make all
