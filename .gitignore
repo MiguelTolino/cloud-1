@@ -38,3 +38,6 @@ terraform.rc
 cloud-1-key.json
 .DS_Store
 .env
+
+# Vagrant
+.vagrant/

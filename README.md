@@ -27,9 +27,25 @@ Defines the **infrastructure resources**, such as the VM, that will be created o
 
 ### 🚀 **Setup**
 
+There are two ways to set up your environment:
+
+#### Option A: Automated Setup (Vagrant)
+If you want to spin up a pre-configured Ubuntu VM with Terraform and Google Cloud CLI already installed:
+1.  Run `vagrant up`.
+2.  SSH into the VM: `vagrant ssh`.
+3.  Continue with the steps in the **Usage** section from inside the VM.
+
+#### Option B: Manual Setup (Local Ubuntu)
+If you are already on an Ubuntu machine and want to install the tools locally:
+1.  Run the setup script:
+    ```sh
+    ./setup_ubuntu.sh
+    ```
+
+#### Configuration
 1. Clone the repository:
    ```sh
-   git clone https://github.com/your-repo/cloud-1.git
+   git clone https://github.com/MiguelTolino/cloud-1.git
    cd cloud-1
    ```
 
@@ -39,7 +55,7 @@ Defines the **infrastructure resources**, such as the VM, that will be created o
 
 ### ▶️ **Usage**
 
-Use the **launch-vm.sh** script to launch a virtual machine:
+Once your environment is ready (either locally or via Vagrant), launch the GCP infrastructure:
 
 ```sh
 ./launch-vm.sh
