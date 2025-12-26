@@ -9,6 +9,14 @@ VM_ZONE="europe-west1-b"
 # Set the environment variable for GCP credentials
 export GOOGLE_CLOUD_KEYFILE_JSON="cloud-1-key.json"
 
+# Check if required tools are installed
+for tool in gcloud terraform jq; do
+    if ! command -v "$tool" &> /dev/null; then
+        echo "ERROR: $tool is not installed. Please install it before running this script."
+        exit 1
+    fi
+done
+
 # Check if .env exists before starting
 if [ ! -f ".env" ]; then
     echo "ERROR: .env file not found. Please create it before running this script."
