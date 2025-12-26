@@ -4,7 +4,7 @@
 set -e
 
 VM_NAME="cloud-1"
-VM_ZONE="us-central1-c"
+VM_ZONE="europe-west1-b"
 
 # Set the environment variable for GCP credentials
 export GOOGLE_CLOUD_KEYFILE_JSON="cloud-1-key.json"
@@ -34,10 +34,6 @@ while ! gcloud compute ssh "$VM_NAME" --zone="$VM_ZONE" --command="echo VM is re
   sleep 10
 done
 
-# Copy the .env file to the VM
-echo "Copying .env file to VM..."
-gcloud compute scp ./.env "$VM_NAME:~/.env" --zone "$VM_ZONE" --quiet
-
-echo "VM is ready and .env file has been uploaded."
+echo "VM is ready. The .env file has been automatically configured via instance metadata."
 echo "You can check the startup script logs with:"
 echo "gcloud compute ssh $VM_NAME --zone=$VM_ZONE --command='tail -f /var/log/startup-script.log'"

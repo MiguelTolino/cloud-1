@@ -7,12 +7,12 @@ variable "project_id" {
 
 variable "region" {
   type    = string
-  default = "us-central1"
+  default = "europe-west1"
 }
 
 variable "zone" {
   type    = string
-  default = "us-central1-c"
+  default = "europe-west1-b"
 }
 
 variable "machine_type" {
@@ -89,7 +89,8 @@ resource "google_compute_instance" "cloud-1" {
   tags = ["http-server", "https-server", "allow-8080"]
 
   metadata = {
-    startup-script = file("${path.module}/startup.sh")
+    startup-script = file("${path.module}/startup-instance.sh")
+    env-file       = fileexists("${path.module}/.env") ? file("${path.module}/.env") : ""
   }
 }
 
@@ -104,6 +105,19 @@ resource "google_compute_firewall" "allow-8080" {
 
   source_ranges = ["0.0.0.0/0"]
   target_tags   = ["allow-8080"]
+}
+
+resource "google_compute_firewall" "allow-https" {
+  name    = "allow-https"
+  network = "default"
+
+  allow {
+    protocol = "tcp"
+    ports    = ["443"]
+  }
+
+  source_ranges = ["0.0.0.0/0"]
+  target_tags   = ["https-server"]
 }
 
 output "instance_ips" {
