@@ -14,9 +14,9 @@ This project automates the deployment of a full-stack infrastructure on **Google
 
 ### 🔑 **Key Components**
 
-- **`main.tf`**: Terraform configuration defining the VM, networking, and firewall rules.
-- **`launch-vm.sh`**: A wrapper script that initializes Terraform, applies the configuration, and monitors the instance startup.
-- **`startup-instance.sh`**: The script that runs inside the VM to bootstrap the environment and deploy the application.
+- **`main.tf`**: Terraform configuration defining the VM instances, networking, and firewall rules. Supports scaling via `node_count`.
+- **`launch-vm.sh`**: A wrapper script that initializes Terraform, applies the configuration, and monitors the startup of all instances in parallel.
+- **`startup-instance.sh`**: The script that runs inside each VM to bootstrap the environment and deploy the application.
 - **`setup_ubuntu.sh`**: A local helper script to install Terraform and the Google Cloud CLI on your Ubuntu machine.
 
 ### 📋 **Prerequisites**
@@ -73,21 +73,36 @@ Run the automated deployment script:
 
 ### 🌐 **Accessing the Application**
 
-Once the deployment is complete, the `launch-vm.sh` script will provide the external IP. You can also find it via:
+Once the deployment is complete, the `launch-vm.sh` script will provide the list of external IPs for all created nodes. You can also find them via:
 ```sh
 terraform output instance_ips
 ```
 
-- **Wordpress**: `http://<EXTERNAL_IP>`
-- **phpMyAdmin**: `http://<EXTERNAL_IP>:8080`
+- **Wordpress**: `http://<IP_NODE_X>`
+- **phpMyAdmin**: `http://<IP_NODE_X>:8080`
+
+### 🏗️ **Parallel Deployment & Scaling**
+
+This project supports deploying multiple independent servers simultaneously. 
+
+To change the number of servers:
+1. Open [`main.tf`](file:///Users/migueltolino/42Cursus/cloud-1/main.tf).
+2. Update the `node_count` variable:
+   ```hcl
+   variable "node_count" {
+     type    = number
+     default = 3 # Change this as needed
+   }
+   ```
+3. Run `./launch-vm.sh` again. Terraform will provision the additional instances in parallel.
 
 ### 🔍 **Troubleshooting**
 
-If the application is not accessible, you can check the startup script logs by SSHing into the VM:
+If an application instance is not accessible, you can check its startup script logs by SSHing into the specific VM:
 ```sh
-./launch-vm.sh # This script will suggest the tail command at the end
-# OR manually:
+# The launch script provides these commands at the end
 gcloud compute ssh cloud-1 --zone=europe-west1-b --command="tail -f /var/log/startup-script.log"
+gcloud compute ssh cloud-2 --zone=europe-west1-b --command="tail -f /var/log/startup-script.log"
 ```
 
 > [!NOTE]

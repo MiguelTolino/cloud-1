@@ -3,7 +3,7 @@
 # Exit on error
 set -e
 
-VM_NAME="cloud-1"
+# VM_NAME="cloud-1" (Removed as we scale to multiple instances)
 VM_ZONE="europe-west1-b"
 
 # Set the environment variable for GCP credentials
@@ -31,17 +31,30 @@ terraform init
 echo "Applying Terraform configuration..."
 terraform apply -auto-approve
 
-# Get the external IP from Terraform outputs
-EXTERNAL_IP=$(terraform output -json instance_ips | jq -r '.[0]')
+# Get the external IPs from Terraform outputs
+EXTERNAL_IPS=$(terraform output -json instance_ips | jq -r '.[]')
 
-# Wait for the VM to be ready
-echo "Waiting for VM ($VM_NAME at $EXTERNAL_IP) to be ready..."
-sleep 5
-while ! gcloud compute ssh "$VM_NAME" --zone="$VM_ZONE" --command="echo VM is ready" --quiet; do
-  echo "VM is not ready yet. Retrying in 10 seconds..."
-  sleep 10
+# Wait for all VMs to be ready
+echo "Waiting for VMs to be ready..."
+for IP in $EXTERNAL_IPS; do
+    # Find the instance name for this IP
+    VM_NAME=$(gcloud compute instances list --filter="networkInterfaces[0].accessConfigs[0].natIP=$IP" --format="get(name)")
+    
+    echo "Waiting for VM ($VM_NAME at $IP) to be ready..."
+    sleep 5
+    while ! gcloud compute ssh "$VM_NAME" --zone="$VM_ZONE" --command="echo VM is ready" --quiet; do
+      echo "VM $VM_NAME is not ready yet. Retrying in 10 seconds..."
+      sleep 10
+    done
+    echo "VM $VM_NAME is ready."
 done
 
-echo "VM is ready. The .env file has been automatically configured via instance metadata."
-echo "You can check the startup script logs with:"
-echo "gcloud compute ssh $VM_NAME --zone=$VM_ZONE --command='tail -f /var/log/startup-script.log'"
+echo "All VMs are ready. The .env file has been automatically configured via instance metadata."
+echo "External IPs:"
+echo "$EXTERNAL_IPS"
+echo ""
+echo "You can check the startup script logs for each VM with:"
+for IP in $EXTERNAL_IPS; do
+    VM_NAME=$(gcloud compute instances list --filter="networkInterfaces[0].accessConfigs[0].natIP=$IP" --format="get(name)")
+    echo "gcloud compute ssh $VM_NAME --zone=$VM_ZONE --command='tail -f /var/log/startup-script.log'"
+done
