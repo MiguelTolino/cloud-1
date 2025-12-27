@@ -31,6 +31,13 @@ provider "google" {
   zone    = var.zone
 }
 
+resource "google_compute_address" "static_ip" {
+  count        = var.node_count
+  name         = "cloud-static-ip-${count.index + 1}"
+  region       = var.region
+  network_tier = "PREMIUM"
+}
+
 resource "google_compute_instance" "cloud-1" {
   count        = var.node_count
   name         = "cloud-${count.index + 1}"
@@ -61,6 +68,7 @@ resource "google_compute_instance" "cloud-1" {
   network_interface {
     network = "default"
     access_config {
+      nat_ip       = google_compute_address.static_ip[count.index].address
       network_tier = "PREMIUM"
     }
 
