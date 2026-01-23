@@ -23,6 +23,41 @@ sudo apt-get install -y \
     make \
     git
 
+# --- Persistent Disk Setup ---
+DISK_DEVICE="/dev/disk/by-id/google-data_disk"
+# We'll use a standard data directory. Inception usually expects /home/$USER/data
+# Since we are root here, we need to be careful. 
+# Identifying the intended user (migueltolino?) is tricky if just 'root' runs this.
+# Assuming INSTANCE_USER is correct or we use a fixed path.
+DATA_DIR="/home/$INSTANCE_USER/data"
+
+echo "Checking for persistent disk at $DISK_DEVICE..."
+if [ -e "$DISK_DEVICE" ]; then
+    echo "Found persistent disk."
+    
+    # Format if not formatted
+    if ! blkid "$DISK_DEVICE"; then
+        echo "Formatting disk as ext4..."
+        mkfs.ext4 -F "$DISK_DEVICE"
+    fi
+
+    # Create mount point
+    mkdir -p "$DATA_DIR"
+    
+    # Mount if not mounted
+    if ! mountpoint -q "$DATA_DIR"; then
+        echo "Mounting disk to $DATA_DIR..."
+        mount "$DISK_DEVICE" "$DATA_DIR"
+    fi
+    
+    # Set permissions
+    chown -R "$INSTANCE_USER:$INSTANCE_USER" "$DATA_DIR"
+    echo "Persistent disk mounted at $DATA_DIR"
+else
+    echo "WARNING: Persistent disk not found at $DISK_DEVICE"
+fi
+# -----------------------------
+
 # Install Docker from official repository
 echo "Installing Docker..."
 if [ ! -f /etc/apt/keyrings/docker.gpg ]; then

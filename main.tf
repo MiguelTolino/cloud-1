@@ -38,6 +38,14 @@ resource "google_compute_address" "static_ip" {
   network_tier = "PREMIUM"
 }
 
+resource "google_compute_disk" "data_disk" {
+  count = var.node_count
+  name  = "cloud-data-disk-${count.index + 1}"
+  type  = "pd-balanced"
+  zone  = var.zone
+  size  = 10
+}
+
 resource "google_compute_instance" "cloud-1" {
   count        = var.node_count
   name         = "cloud-${count.index + 1}"
@@ -55,6 +63,11 @@ resource "google_compute_instance" "cloud-1" {
     }
 
     mode = "READ_WRITE"
+  }
+
+  attached_disk {
+    source      = google_compute_disk.data_disk[count.index].id
+    device_name = "data_disk"
   }
 
   can_ip_forward      = false

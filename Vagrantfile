@@ -18,8 +18,8 @@ Vagrant.configure("2") do |config|
   # Optional: Forward ports if needed for development
   # config.vm.network "forwarded_port", guest: 80, host: 8080
 
-  # Optional: Shared folder for working locally
-  # config.vm.synced_folder ".", "/home/vagrant/project"
+  # Shared folder for working locally
+  config.vm.synced_folder ".", "/home/vagrant/shared"
 
   config.vm.post_up_message = <<-MESSAGE
     --------------------------------------------------------------
